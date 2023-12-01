@@ -1,17 +1,29 @@
+val numbers = listOf(
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
+).withIndex()
+
 fun main() {
     fun part1(input: List<String>): Int =
         input
-            .map {
-                it.filter { char -> char.isDigit() }
+            .sumOf { line ->
+                line.filter { it.isDigit() }
+                    .let { "${it.first()}${it.last()}" }
+                    .toInt()
             }
-            .map {
-                "${it.first()}${it.last()}"
-            }
-            .sumOf { it.toInt() }
 
 
-    fun part2(input: List<String>): Int {
-        return input.size
+    fun part2(input: List<String>): Int = input.sumOf { line ->
+        line.mapIndexedNotNull { idx, char ->
+            if (char.isDigit()) {
+                char
+            } else {
+                val pendingLine = line.slice(idx until line.length)
+                numbers.find { pendingLine.startsWith(it.value) }?.index?.digitToChar()
+            }
+        }.let {
+            "${it.first()}${it.last()}".toInt()
+        }
+
     }
 
     // test if implementation meets criteria from the description, like:
