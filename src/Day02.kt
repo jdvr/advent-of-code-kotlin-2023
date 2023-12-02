@@ -37,7 +37,24 @@ fun main() {
     }
 
 
-    fun part2(input: List<String>): Long = -2
+    fun part2(input: List<String>): Long {
+        return input.sumOf { line ->
+            val game = line.split(":")
+            game.last()
+                .trim()
+                .split(";")
+                .map { it.trim() }
+                .flatMap { it.split(",") }
+                .map {
+                    val (number, color) = it.trim().split(" ")
+                    color to number.toLong()
+                }
+                .groupBy({it.first}) {it.second}
+                .mapValues { it.value.max()  }
+                .values
+                .reduce { acc, num -> acc * num }
+        }
+    }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("${dayId}_test")
