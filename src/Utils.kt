@@ -3,6 +3,11 @@ import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
 
+const val COMMA = ","
+const val COLON = ":"
+const val SEMICOLON = ";"
+const val SPACE = " "
+
 /**
  * Reads lines from the given input txt file.
  */
