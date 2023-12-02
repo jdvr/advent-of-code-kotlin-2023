@@ -8,9 +8,9 @@ fun main() {
     )
 
     fun part1(input: List<String>): Int = input.sumOf { line ->
-        val game = line.split(COLON)
+        val game = line.splitTrim(COLON)
         val gameId = game.first().split(SPACE).last().toInt()
-        val sets = game.last().trim().split(SEMICOLON)
+        val sets = game.last().split(SEMICOLON)
         val invalidSets = sets.any {
             val extractions = it.split(COMMA).map { ex -> ex.trim() }
             val invalidExtraction = extractions.any { ex ->
@@ -31,14 +31,12 @@ fun main() {
 
 
     fun part2(input: List<String>): Long = input.sumOf { line ->
-        val game = line.split(COLON)
+        val game = line.splitTrim(COLON)
         game.last()
-            .trim()
-            .split(SEMICOLON)
-            .map { it.trim() }
+            .splitTrim(SEMICOLON)
             .flatMap { it.split(COMMA) }
             .map {
-                val (number, color) = it.trim().split(SPACE)
+                val (number, color) = it.splitTrim(SPACE)
                 color to number.toLong()
             }
             .groupBy({it.first}) {it.second}
