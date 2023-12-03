@@ -1,12 +1,12 @@
 fun main() {
     val dayId = "Day03"
-    val isSymbol: (Char?) -> Boolean = { it != '.' && it?.isDigit()?.not() ?: false }
+    val isSymbol: (Char) -> Boolean = { it != '.' && it.isDigit().not() }
 
     fun IntRange.neighbours(limit: Int): IntRange =
-        (this.first - 1).coerceAtLeast(0) .. (this.last + 1).coerceAtMost(limit -1)
+        (this.first - 1).coerceAtLeast(0)..(this.last + 1).coerceAtMost(limit - 1)
 
-    fun String.numbers(): Map<Long, IntRange> {
-        val result = mutableMapOf<Long, IntRange>()
+    fun String.numbers(): List<Pair<Long, IntRange>> {
+        val result = mutableListOf<Pair<Long, IntRange>>()
         var onNumber = false
         var start = -2
         var read = ""
@@ -25,7 +25,7 @@ fun main() {
                 !char.isDigit() && onNumber -> {
                     val range = start until idx
                     val number = read.toLong()
-                    result[number] = range
+                    result.add(number to range)
                     start = -2
                     read = ""
                     onNumber = false
@@ -35,12 +35,11 @@ fun main() {
         if (onNumber) {
             val range = start until this.length
             val number = read.toLong()
-            result[number] = range
+            result.add(number to range)
         }
 
         return result
     }
-
 
 
     fun part1(input: List<String>): Long = input.mapIndexed { idx, line ->
@@ -51,12 +50,12 @@ fun main() {
             // has symbol in the same line
             if (range.first > 0 && line[range.first - 1] != '.') {
                 validNumbers.add(number)
-//                 println("number $number has neighbour in the left")
+                 println("number $number has neighbour in the left")
                 continue
             }
             if (range.last < line.length - 1 && line[range.last + 1] != '.') {
                 validNumbers.add(number)
-//                 println("number $number has neighbour in the right")
+                 println("number $number has neighbour in the right")
                 continue
             }
             // has symbol on top
@@ -64,7 +63,7 @@ fun main() {
                 val topLine = input[idx - 1]
                 val topLineRange = range.neighbours(topLine.length)
                 if (topLine.slice(topLineRange).any(isSymbol)) {
-//                     println("number $number has neighbour in the top ($topLineRange)")
+                     println("number $number has neighbour in the top ($topLineRange)")
                     validNumbers.add(number)
                     continue
                 }
@@ -73,8 +72,8 @@ fun main() {
             if (idx < input.size - 1) {
                 val bottomLine = input[idx + 1]
                 val bottomLineRange = range.neighbours(bottomLine.length)
-                if (bottomLine.slice(bottomLineRange).any { it != '.' }) {
-//                     println("number $number has neighbour in the bottom ($bottomLineRange)")
+                if (bottomLine.slice(bottomLineRange).any(isSymbol)) {
+                     println("number $number has neighbour in the bottom ($bottomLineRange)")
                     validNumbers.add(number)
                     continue
                 }
@@ -97,17 +96,51 @@ fun main() {
 
     part1(
         listOf(
-            "..............598......#.....536....702*.........705..........793......957............./" +
-                    "........*...935...........965.......................",
-            "..................*.357...+.....@.......242.......*......283..*...=956.......118.......959.." +
-                    ".184...*..............*....401*527.....348...161",
-            ".63=...955.523..77......978.846....849..........699..........790........=911.*.....87...............486.........914..............=.........."
+
+            "12.......*..",
+            "+.........34",
+            ".......-12..",
+            "..78........",
+            "..*....60...",
+            "78.........9",
+            ".5.....23..\$",
+            "8...90*12...",
+            "............",
+            "2.2......12.",
+            ".*.........*",
+            "1.1..503+.56"
+
         )
-    ).println()
+    ).apply {
+        this.println()
+        check(this == 925L)
+    }
+
+    part2(
+        listOf(
+
+            "12.......*..",
+            "+.........34",
+            ".......-12..",
+            "..78........",
+            "..*....60...",
+            "78.........9",
+            ".5.....23..\$",
+            "8...90*12...",
+            "............",
+            "2.2......12.",
+            ".*.........*",
+            "1.1..503+.56"
+
+        )
+    ).apply {
+        this.println()
+        check(this == 6756L)
+    }
 
     part2(testInput).apply {
         this.println()
-//        check(this == 2286L)
+        check(this == 467835L)
     }
 
     val input = readInput(dayId)
