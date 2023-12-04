@@ -1,22 +1,44 @@
+import java.util.regex.Pattern
 import kotlin.math.pow
 
 fun main() {
     val dayId = "Day04"
+    val pattern = Pattern.compile("(\\d+)")
+
+
+    fun extractId(cardIdRow: String): Int {
+        val matcher = pattern.matcher(cardIdRow)
+
+        if (!matcher.find()) {
+            throw IllegalArgumentException("impossible")
+        }
+
+        return matcher.group(1).toInt()
+    }
+
+    fun extractNumbers(text: String): List<Int> {
+        val matcher = pattern.matcher(text)
+
+        val results = mutableListOf<Int>()
+        while (matcher.find()) {
+            results.add(matcher.group(1).toInt())
+        }
+
+        return results.toList()
+    }
 
     fun cardMatches(numbers: String): Long {
-        val (winingNumbersRaw, myNumbersRaw) = numbers.splitTrim("|")
-        val winingNumbers =
-            winingNumbersRaw.splitTrim(" ").filter { it.isNotEmpty() && it.isNotBlank() }
-                .map { it.toInt() }
-        val myNumbers = myNumbersRaw.splitTrim(" ").filter { it.isNotEmpty() && it.isNotBlank() }
-            .map { it.toInt() }
+        val (winingNumbersRaw, myNumbersRaw) = numbers.split("|")
+        val winingNumbers = extractNumbers(winingNumbersRaw)
+        val myNumbers = extractNumbers(myNumbersRaw)
         return myNumbers.count { winingNumbers.contains(it) }.toLong()
     }
+
 
     fun part1(input: List<String>): Long {
         var total = 0L
         for (line in input) {
-            val (cardId, numbers) = line.splitTrim(":")
+            val (_, numbers) = line.splitTrim(":")
             val matches = cardMatches(numbers)
             val score = 2.0.pow(matches - 1.0).let {
                 if (it < 1) {
@@ -25,64 +47,38 @@ fun main() {
                     it
                 }
             }.toLong()
-            println("$cardId worth $score")
             total += score
         }
         return total
     }
 
+    data class Card(val id: Int, val matches: Long, val copies: Int)
 
     fun part2(input: List<String>): Long {
-        var numberOfCards = 0L
-        val pendingCards = mutableMapOf<String, Int>()
-        val matchesByCard = mutableMapOf<String, Long>()
-        val biggestCard = input.size.toLong()
+        val cards = input
+            .map {
+                val (cardIdRaw, numbers) = it.splitTrim(COLON)
+                cardIdRaw to numbers
+            }
+            .groupBy({
+                extractId(it.first)
+            }) {
+                val matches = cardMatches(it.second)
+                Card(extractId(it.first), matches, 1)
+            }.mapValues { it.value.first() }.toMutableMap()
 
-        for (line in input) {
-            val (cardId, numbers) = line.splitTrim(":")
-            val matches = cardMatches(numbers)
-            matchesByCard[cardId] = matches;
-            if (matches > 0) {
-                val id = cardId.splitTrim(" ").last().toInt()
-                val longRange = id + 1..(id + matches).coerceAtMost(biggestCard)
-                println(cardId + " with $matches generates " + longRange)
-                longRange.forEach {
-                    val key = "Card $it"
-                    pendingCards.compute(key) { _, currValue ->
-                        currValue?.plus(1) ?: 1
-                    }
+        for (cardId in cards.keys) {
+            val card = cards[cardId] ?: throw IllegalArgumentException("impossible")
+            repeat(card.matches.toInt()) {
+                cards.compute(cardId + it + 1) { _, currVal ->
+                    currVal?.copy(
+                        copies = currVal.copies + card.copies
+                    ) ?: throw IllegalArgumentException("what?")
                 }
             }
-
-            numberOfCards++
-        }
-        println("going to pending cards")
-        var targetCard = 2
-        while (pendingCards.isNotEmpty()) {
-            val key = "Card $targetCard"
-            val pending = pendingCards.remove(key)
-            println("post processing $key with $pending ops")
-            if (pending == null) {
-                targetCard++
-                continue
-            }
-            numberOfCards += pending
-            val matches = matchesByCard[key]
-            if (matches == null || matches == 0L) {
-                targetCard++
-                continue
-            }
-            (targetCard + 1..(targetCard + matches).coerceAtMost(biggestCard)).forEach {
-                val _key = "Card $it"
-                pendingCards.compute(_key) { _, currValue ->
-                    currValue?.plus(pending) ?: pending
-                }
-            }
-
-            targetCard++
         }
 
-        return numberOfCards
+        return cards.values.sumOf { it.copies }.toLong()
     }
 
 //  test if implementation meets criteria from the description, like:
