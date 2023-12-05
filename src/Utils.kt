@@ -27,3 +27,11 @@ fun Any?.println() = println(this)
 
 fun String.splitTrim(delimiter: String): List<String> =
     this.trim().split(delimiter).map { it.trim() }
+
+val numbersSeparatedBySpace = "(\\d+)".toRegex()
+
+fun String.toListOfLong(): List<Long> =
+    numbersSeparatedBySpace.findAll(this)
+        .map { it.groupValues[0] }
+        .map { it.toLong() }
+        .toList()
