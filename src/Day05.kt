@@ -1,5 +1,3 @@
-import kotlin.math.pow
-
 fun main() {
     val dayId = "Day05"
     val seedsLine = "seeds"
@@ -30,7 +28,6 @@ fun main() {
                 }
 
                 mapLineRegex.matches(line) -> {
-                    val headLine = line
                     println("line $line")
                     val seedToSoilMap = mutableListOf<Line>()
                     while (line.isNotEmpty() && i < input.size - 1) {
@@ -45,10 +42,8 @@ fun main() {
                         val mapLine = seedToSoilMap.find { rg -> rg.sourceRange.contains(it) }
                         if (mapLine != null) {
                             val mapped = mapLine.destinationStart + mapLine.sourceRange.indexOf(it)
-                            println("$it mapped using $headLine to $mapped")
                             mapped
                         } else {
-                            println("$it don't have a map")
                             it
                         }
                     }
@@ -62,7 +57,59 @@ fun main() {
         return values.min()
     }
 
-    fun part2(input: List<String>): Long = -12
+    fun part2(input: List<String>): Long {
+        val rangesPairs = input[0].toListOfLong().toMutableList()
+
+        val ranges = (rangesPairs.indices step 2).map {
+            val start = rangesPairs[it]
+            val length = rangesPairs[it + 1]
+            (start until start + length)
+        }
+
+        val maps = mutableListOf<List<Line>>()
+
+        var i = 1;
+        while (i < input.size) {
+            var line = input[i]
+            when {
+                mapLineRegex.matches(line) -> {
+                    println("line $line")
+                    val curreMap = mutableListOf<Line>()
+                    while (line.isNotEmpty() && i < input.size - 1) {
+                        i++
+                        line = input[i]
+                        if (line.isEmpty()) {
+                            break
+                        }
+                        curreMap.add(parseLine(line))
+                    }
+                    maps.add(curreMap)
+                }
+                else -> {
+                    i++
+                }
+            }
+        }
+        var min = Long.MAX_VALUE
+        for (range in ranges) {
+            // FIXME: OOM
+            var values = range.toList()
+            for (map in maps) {
+                values = values.map {
+                    val mapLine = map.find { rg -> rg.sourceRange.contains(it) }
+                    if (mapLine != null) {
+                        val mapped = mapLine.destinationStart + mapLine.sourceRange.indexOf(it)
+                        mapped
+                    } else {
+                        it
+                    }
+                }
+            }
+            min = min.coerceAtMost(values.min())
+        }
+
+        return min
+    }
 
 
 //  test if implementation meets criteria from the description, like:
