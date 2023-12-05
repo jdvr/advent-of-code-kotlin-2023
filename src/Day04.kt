@@ -1,31 +1,21 @@
-import java.util.regex.Pattern
 import kotlin.math.pow
 
 fun main() {
     val dayId = "Day04"
-    val pattern = Pattern.compile("(\\d+)")
+    val regex = "(\\d+)".toRegex()
 
 
-    fun extractId(cardIdRow: String): Int {
-        val matcher = pattern.matcher(cardIdRow)
+    fun extractId(cardIdRow: String): Int = regex.find(cardIdRow)
+        ?.groupValues
+        ?.get(0)
+        ?.toInt()!!
 
-        if (!matcher.find()) {
-            throw IllegalArgumentException("impossible")
-        }
+    fun extractNumbers(text: String): List<Int> =
+        regex.findAll(text)
+            .map { it.groupValues[0] }
+            .map { it.toInt() }
+            .toList()
 
-        return matcher.group(1).toInt()
-    }
-
-    fun extractNumbers(text: String): List<Int> {
-        val matcher = pattern.matcher(text)
-
-        val results = mutableListOf<Int>()
-        while (matcher.find()) {
-            results.add(matcher.group(1).toInt())
-        }
-
-        return results.toList()
-    }
 
     fun cardMatches(numbers: String): Long {
         val (winingNumbersRaw, myNumbersRaw) = numbers.split("|")
