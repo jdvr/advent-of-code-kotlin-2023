@@ -1,12 +1,38 @@
+import kotlin.math.floor
+import kotlin.math.pow
+import kotlin.math.sqrt
+
 fun main() {
     val dayId = "Day06"
 
-    fun findPossibilities(maxTime: Long, distance: Long): Long =
-        (0 until maxTime).count { pressTime ->
-            val remainingTime = maxTime - pressTime
-            val moved = remainingTime * pressTime
-            moved > distance
-        }.toLong()
+    /*
+    maxT = 7
+    d = 9
+    x = 2
+    moved = 1 * (7  - 1) = 6
+    moved = 2 * (7  - 2) = 10
+    moved = x * (maxT  - x)
+    x * (maxT  - x) - moved = 0
+    -x2 + maxT*x - moved = 0
+    // segundo grado
+    x = (-b +- sqrt(b2 - 4ac) / 2a
+    a = -1
+    b = maxT
+    c = -moved = d -> min distance
+    x = (b +- sqrt(b2 + -4c) / -2
+     */
+    fun findPossibilities(maxTime: Long, distance: Long): Long {
+        val b = maxTime.toDouble()
+        val c = distance * -1.0 // to have -c (moved from the other side of "=")
+        val x = (b - sqrt(b.pow(2) + 4 * c)) / 2
+        // This is the min number of loss
+        var loosingCount = floor(x).toLong()
+        // double the range
+        loosingCount *= 2
+        // Count x = 0
+        loosingCount += 1
+        return maxTime - loosingCount
+}
 
     fun part1(input: List<String>): Long {
         val times = input[0].toListOfLong()
