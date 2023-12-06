@@ -1,37 +1,28 @@
 fun main() {
     val dayId = "Day06"
 
+    fun findPossibilities(maxTime: Long, distance: Long): Long =
+        (0 until maxTime).count { pressTime ->
+            val remainingTime = maxTime - pressTime
+            val moved = remainingTime * pressTime
+            moved > distance
+        }.toLong()
+
     fun part1(input: List<String>): Long {
         val times = input[0].toListOfLong()
-        val distnaces = input[1].toListOfLong()
+        val distances = input[1].toListOfLong()
 
-        var total = 1L
-
-        for (index in times.indices) {
-            val maxTime = times[index]
-            val distance = distnaces[index]
-            val possibilities = (0 until maxTime).count { pressTime ->
-                val remainingTime = maxTime - pressTime
-                val moved = remainingTime * pressTime
-                moved > distance
-            }
-            println("For $maxTime and $distance there are $possibilities")
-            if (possibilities != 0) {
-                total *= possibilities
-            }
-        }
-        return total
+        return times.mapIndexed{ idx, maxTime ->
+            val distance = distances[idx]
+            findPossibilities(maxTime, distance)
+        }.filter { it != 0L }.reduce { acc, l -> acc * l }
     }
 
     fun part2(input: List<String>): Long {
         val maxTime = input[0].filter { it.isDigit() }.toLong()
         val distance = input[1].filter { it.isDigit() }.toLong()
 
-        return (0 until maxTime).count { pressTime ->
-            val remainingTime = maxTime - pressTime
-            val moved = remainingTime * pressTime
-            moved > distance
-        }.toLong()
+        return findPossibilities(maxTime, distance)
     }
 
 
