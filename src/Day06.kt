@@ -27,7 +27,7 @@ fun main() {
         val x = (b - sqrt(b.pow(2) + 4 * c)) / 2
         // This is the min number of loss
         var loosingCount = floor(x).toLong()
-        // double the range
+        // double the range -- kind of trial/error
         loosingCount *= 2
         // Count x = 0
         loosingCount += 1
