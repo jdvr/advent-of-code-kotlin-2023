@@ -61,11 +61,7 @@ fun main() {
                 4, 3, 1 -> score + 2
                 // 33JJ1 -> becomes four of a kind 2 -> 5
                 // 33J11 -> becomes full 2 -> 4
-                2 -> if (jokers == 1) {
-                    4
-                } else {
-                    5
-                }
+                2 -> score + jokers + 1
                 // J1234 -> becomes one pair
                 0 -> 1
                 // 33J41 -> becomes three of a kind 3
@@ -108,20 +104,23 @@ fun main() {
         return 0
     }
 
-    fun part1(input: List<String>): Long {
-        val hands = input.map { it.parseLine() }
-        val sorted = hands.sortedWith { l, r ->
-            // Comparator<T> interface:
-            // a negative integer, zero, or a positive integer as the first argument
-            // is less than, equal to, or greater than the second
-
-            val diff = l.score - r.score
+    // Comparator<T> interface:
+    // a negative integer, zero, or a positive integer as the first argument
+    // is less than, equal to, or greater than the second
+    fun compareHands(useJoker: Boolean = false): Comparator<Hand> =
+        Comparator { left, right ->
+            val diff = left.score - right.score
             if (diff == 0) {
-                compareFigures(l.raw, r.raw)
+                compareFigures(left.raw, right.raw, useJoker)
             } else {
                 diff
             }
         }
+
+
+    fun part1(input: List<String>): Long {
+        val hands = input.map { it.parseLine() }
+        val sorted = hands.sortedWith(compareHands())
         (sorted.joinToString("\n") { it.raw }).println()
         return sorted.mapIndexed { idx, hand ->
             (idx + 1) * hand.bid
@@ -129,18 +128,9 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
-        val hands = input.map { it.parseLine(useJoker = true) }
-        val sorted = hands.sortedWith { l, r ->
-            // Comparator<T> interface:
-            // a negative integer, zero, or a positive integer as the first argument
-            // is less than, equal to, or greater than the second
-            val diff = l.score - r.score
-            if (diff == 0) {
-                compareFigures(l.raw, r.raw, useJoker = true)
-            } else {
-                diff
-            }
-        }
+        val useJoker = true
+        val hands = input.map { it.parseLine(useJoker = useJoker) }
+        val sorted = hands.sortedWith(compareHands(useJoker = useJoker))
         (sorted.joinToString("\n") { "${it.raw} ${it.score}" }).println()
         return sorted.mapIndexed { idx, hand ->
             (idx + 1) * hand.bid
