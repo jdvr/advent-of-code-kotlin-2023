@@ -27,11 +27,19 @@ fun main() {
             val lastValues = generateSubProgressions(progression)
             lastValues.sum() + progression.last()
         }
-        
+
         return lastValues.sum()
     }
 
-    fun part2(input: List<String>): Long = -12
+    fun part2(input: List<String>): Long {
+        val firstValues = input.map {
+            val progression = it.toListOfLong().reversed()
+            val firstValues = generateSubProgressions(progression)
+            firstValues.sum() + progression.last()
+        }
+
+        return firstValues.sum()
+    }
 
 
 //  test if implementation meets criteria from the description, like:
@@ -44,7 +52,7 @@ fun main() {
     part2(testInput).apply {
         this.println()
 
-        check(this == 6839L || this == -12L)
+        check(this == 2L || this == -12L)
     }
 
     val input = readInput(dayId)
